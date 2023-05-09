@@ -1,21 +1,25 @@
 import React from 'react';
 import './Popup.css';
+import { getImages, onImageSrcsRetrieved } from '../../scripts/images';
 
 const Popup = () => {
+  const scanImages = () => {
+    chrome.tabs.query({ active: true }, (tabs) => {
+      const tab = tabs[0];
+      chrome.scripting.executeScript({
+        target: {
+          tabId: tab.id as number,
+          allFrames: true
+        },
+        func: getImages,
+      }, onImageSrcsRetrieved);
+    });
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <p>
-          Edit <code>src/pages/Popup/Popup.jsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React!
-        </a>
+        <button onClick={scanImages}>Scan Images</button>
       </header>
     </div>
   );
