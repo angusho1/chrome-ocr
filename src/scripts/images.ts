@@ -1,5 +1,5 @@
 import Tesseract, { createWorker } from "tesseract.js";
-import { ScanPageResult } from "../types/script.types";
+import { ScanPageResult, SymbolData } from "../types/script.types";
 
 export const scanPage = (): ScanPageResult => {
     const images = Array.from(document.querySelectorAll('img'));
@@ -26,7 +26,7 @@ export const extractText = async (imgSrc: string) => {
     return res.data;
 };
 
-export const insertHtml = (imgSrc: string, symbols: {bbox: Tesseract.Bbox}[]) => {
+export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
     const imgNode = Array.from(document.querySelectorAll('img')).find(img => img.src === imgSrc);
     if (imgNode) {
         imgNode.ondragstart = (e) => e.preventDefault();
@@ -49,7 +49,37 @@ export const insertHtml = (imgSrc: string, symbols: {bbox: Tesseract.Bbox}[]) =>
             div.style.left = `${imgRect.left + (bbox.x0 * widthScale)}px`;
             div.style.top = `${imgRect.top + (bbox.y0 * heightScale)}px`;
             div.style.width = `${(bbox.x1 - bbox.x0) * widthScale}px`;
-            div.style.height = `${(bbox.y1 - bbox.y0) * heightScale}px`;
+            const scaledBboxHeight = (bbox.y1 - bbox.y0) * heightScale;
+            div.style.height = `${scaledBboxHeight}px`;
+            
+            div.innerText = symbol.text;
+            div.style.color = 'rgba(0, 0, 0, 0)';
+            div.style.fontSize = `${scaledBboxHeight}px`;
+
+            const before = document.createElement('div');
+            before.style.content = '""';
+            before.style.position = 'absolute';
+            before.style.top = '-5px';
+            before.style.left = '-5px';
+            before.style.width = 'calc(100% + 10px)';
+            before.style.height = 'calc(100% + 10px)';
+            before.style.zIndex = '-1';
+            before.style.backgroundColor = 'transparent';
+            before.style.pointerEvents = 'none';
+            div.appendChild(before);
+
+            const after = document.createElement('div');
+            after.style.content = '""';
+            after.style.position = 'absolute';
+            after.style.bottom = '-5px';
+            after.style.right = '-5px';
+            after.style.width = 'calc(100% + 10px)';
+            after.style.height = 'calc(100% + 10px)';
+            after.style.zIndex = '-1';
+            after.style.backgroundColor = 'transparent';
+            after.style.pointerEvents = 'none';
+            div.appendChild(after);
+
             document.body.appendChild(div);
         });
     }

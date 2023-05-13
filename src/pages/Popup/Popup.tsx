@@ -28,7 +28,7 @@ const Popup = () => {
             console.log(res.symbols);
             const symbols = res.symbols
               .filter(symbol => symbol.confidence > 90)
-              .map(symbol => ({ bbox: symbol.bbox }));
+              .map(symbol => ({ bbox: symbol.bbox, text: symbol.text }));
 
             chrome.scripting.executeScript({
               target: scriptTargetOptions,
