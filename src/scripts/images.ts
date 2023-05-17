@@ -46,8 +46,8 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
             const div = document.createElement('div');
             div.style.border = '1px solid red';
             div.style.position = 'absolute';
-            div.style.left = `${imgRect.left + (bbox.x0 * widthScale)}px`;
-            div.style.top = `${imgRect.top + (bbox.y0 * heightScale)}px`;
+            div.style.left = `${imgRect.left + window.scrollX + (bbox.x0 * widthScale)}px`;
+            div.style.top = `${imgRect.top + window.scrollY + (bbox.y0 * heightScale)}px`;
             div.style.width = `${(bbox.x1 - bbox.x0) * widthScale}px`;
             const scaledBboxHeight = (bbox.y1 - bbox.y0) * heightScale;
             div.style.height = `${scaledBboxHeight}px`;
