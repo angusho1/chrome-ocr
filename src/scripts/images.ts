@@ -40,6 +40,9 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
         const imgRect = imgNode.getBoundingClientRect();
         const widthScale = imgNode.width / imgNode.naturalWidth;
         const heightScale = imgNode.height / imgNode.naturalHeight;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ocr-overlay-wrapper';
         
         symbols.forEach((symbol, index) => {
             const bbox = symbol.bbox;
@@ -80,7 +83,9 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
             after.style.pointerEvents = 'none';
             div.appendChild(after);
 
-            document.body.appendChild(div);
+            wrapper.appendChild(div);
         });
+
+        document.body.appendChild(wrapper);
     }
 };

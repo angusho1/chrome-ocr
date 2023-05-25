@@ -44,6 +44,13 @@
         "mac": "Command+Shift+F"
       },
       "description": "Scan images on the current page"
+    },
+    "toggle_mode": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Toggle the current image viewing mode"
     }
   }
 }

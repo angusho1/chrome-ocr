@@ -3,9 +3,12 @@ import './Popup.css';
 import { extractText, insertHtml, scanPage } from '../../scripts/images';
 import { ChromeStorageKeys } from '../../constants/chrome-storage';
 import { addUnloadListener } from '../../scripts/lifecycle';
+import { useExtensionState } from '../../hooks/extension-state.hooks';
+import { ImageViewMode } from '../../types/state.types';
 
 const Popup = () => {
   const [isScanning, setIsScanning] = useState<boolean>();
+  const { extensionState, setScanned } = useExtensionState();
 
   const scanImages = async () => {
     setIsScanning(true);
@@ -58,6 +61,7 @@ const Popup = () => {
     await Promise.all(jobs);
     await chrome.storage.local.set({ [ChromeStorageKeys.IMAGE_DATA_KEY]: imageScanData });
     setIsScanning(false);
+    setScanned();
   };
 
   const setOnPageUnloadListener = async () => {
@@ -72,10 +76,14 @@ const Popup = () => {
   };
 
   useEffect(() => {
-    scanImages();
-    
     setOnPageUnloadListener();
   }, []);
+
+  useEffect(() => {
+    if (extensionState.mode === ImageViewMode.SYMBOLS) {
+      scanImages();
+    }
+  }, [extensionState.mode]);
 
   return (
     <div className="App">
