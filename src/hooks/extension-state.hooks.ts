@@ -4,15 +4,14 @@ import { BackgroundMessageActions, ExtensionMessageActions } from "../constants/
 
 export type ExtensionStateResult = {
     extensionState: ExtensionState;
-    setScanned: () => void;
+    setState: (state: ExtensionState) => void;
 }
 
 export const useExtensionState = (): ExtensionStateResult => {
     const [extensionState, setExtensionState] = useState<ExtensionState | undefined>(undefined);
 
-    const setScanned = () => {
-        chrome.runtime.sendMessage({ action: ExtensionMessageActions.SET_SCANNED })
-            .then(state => setExtensionState(state));
+    const setState = (state: ExtensionState) => {
+        chrome.runtime.sendMessage({ action: ExtensionMessageActions.SET_STATE, data:  state });
     };
 
     useEffect(() => {
@@ -33,6 +32,6 @@ export const useExtensionState = (): ExtensionStateResult => {
 
     return {
         extensionState: extensionState || { mode: ImageViewMode.OFF, scanned: false },
-        setScanned,
+        setState,
     };
 };

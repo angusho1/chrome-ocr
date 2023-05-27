@@ -1,6 +1,6 @@
 export const ExtensionMessageActions = {
     GET_STATE: 'get_state',
-    SET_SCANNED: 'set_scanned',
+    SET_STATE: 'set_state',
 };
 
 export const BackgroundMessageActions = {

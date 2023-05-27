@@ -1,67 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import './Popup.css';
-import { extractText, insertHtml, scanPage } from '../../scripts/images';
+import { extractText, getImageSrcsFromPage, insertHtml } from '../../scripts/images';
 import { ChromeStorageKeys } from '../../constants/chrome-storage';
-import { addUnloadListener } from '../../scripts/lifecycle';
+import { addUnloadListener, showScanResults } from '../../scripts/lifecycle';
 import { useExtensionState } from '../../hooks/extension-state.hooks';
 import { ImageViewMode } from '../../types/state.types';
+import { executeScript } from '../Background';
 
 const Popup = () => {
   const [isScanning, setIsScanning] = useState<boolean>();
-  const { extensionState, setScanned } = useExtensionState();
+  const { extensionState, setState: setScanned } = useExtensionState();
 
   const scanImages = async () => {
+    if (extensionState.scanned) executeScript(showScanResults);
     setIsScanning(true);
+
     const [tab] = await chrome.tabs.query({ active: true });
-    const scriptTargetOptions = {
-      tabId: tab.id as number,
-      allFrames: true
-    };
 
-    const injectionResults = await chrome.scripting.executeScript({
-      target: scriptTargetOptions,
-      func: scanPage,
-    });
-
-    if (!injectionResults || !injectionResults.length) {
-      console.log('No images found');
-      return;
-    }
-    console.log('Image srcs', injectionResults);
+    const imageSrcs = await getImageSrcsFromPage(tab);
 
     const imageScanData = (await chrome.storage.local.get([ChromeStorageKeys.IMAGE_DATA_KEY]))[ChromeStorageKeys.IMAGE_DATA_KEY] || {};
 
     const jobs: Promise<void>[] = [];
-    injectionResults.forEach(async (frame) => {
-      frame.result.imgSrcs.forEach(async (imgSrc) => {
-        const job = (async () => {
-          let symbols;
-          if (!imageScanData[imgSrc]) {
-            const res = await extractText(imgSrc);
-            symbols = res.symbols
-              .filter(symbol => symbol.confidence > 95)
-              .map(symbol => ({ bbox: symbol.bbox, text: symbol.text }));
-  
-              imageScanData[imgSrc] = symbols;
-          } else {
-            console.log('exists already');
-            symbols = imageScanData[imgSrc];
-          }
-  
-          await chrome.scripting.executeScript({
-            target: scriptTargetOptions,
-            func: insertHtml,
-            args: [imgSrc, symbols]
-          });
-        })();
-        jobs.push(job);
-      });
+    imageSrcs.forEach(async (imgSrc) => {
+      const job = (async () => {
+        let symbols;
+        if (!imageScanData[imgSrc]) {
+          const res = await extractText(imgSrc);
+          symbols = res.symbols
+            .filter(symbol => symbol.confidence > 95)
+            .map(symbol => ({ bbox: symbol.bbox, text: symbol.text }));
+
+          imageScanData[imgSrc] = symbols;
+        } else {
+          symbols = imageScanData[imgSrc];
+        }
+
+        await chrome.scripting.executeScript({
+          target: {
+            tabId: tab.id as number,
+            allFrames: true
+          },
+          func: insertHtml,
+          args: [imgSrc, symbols]
+        });
+      })();
+      jobs.push(job);
     });
 
     await Promise.all(jobs);
     await chrome.storage.local.set({ [ChromeStorageKeys.IMAGE_DATA_KEY]: imageScanData });
     setIsScanning(false);
-    setScanned();
+    setScanned({ scanned: true, mode: ImageViewMode.SYMBOLS });
   };
 
   const setOnPageUnloadListener = async () => {
@@ -80,10 +70,10 @@ const Popup = () => {
   }, []);
 
   useEffect(() => {
-    if (extensionState.mode === ImageViewMode.SYMBOLS) {
+    if (extensionState.mode === ImageViewMode.OFF && !extensionState.scanned) {
       scanImages();
     }
-  }, [extensionState.mode]);
+  }, [extensionState]);
 
   return (
     <div className="App">
