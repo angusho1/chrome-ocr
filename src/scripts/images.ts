@@ -1,5 +1,5 @@
 import Tesseract, { createWorker } from "tesseract.js";
-import { ScanPageResult, SymbolData } from "../types/script.types";
+import { ImageAttributes, ScanPageResult, SymbolData } from "../types/script.types";
 
 export const getImageSrcsFromPage = async (tab: chrome.tabs.Tab): Promise<string[]> => {
     const injectionResults = await chrome.scripting.executeScript({
@@ -44,15 +44,37 @@ export const extractText = async (imgSrc: string) => {
 };
 
 export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
+    const disableUserInteraction = (imgNode: HTMLImageElement) => {
+        const imgAttributes: ImageAttributes = {};
+
+        if (imgNode.draggable) {
+            imgNode.ondragstart = (e) => e.preventDefault();
+            imgAttributes.draggable = true;
+        }
+
+        if (imgNode.style.touchAction !== 'none') {
+            imgAttributes.touchAction = imgNode.style.touchAction;
+            imgNode.onclick = (e) => e.preventDefault();
+            imgNode.addEventListener('click', function(event) {
+                event.preventDefault();
+            }, { passive: false });
+            imgNode.style.touchAction = 'none';
+        }
+
+        if (imgNode.style.pointerEvents !== 'none') {
+            imgAttributes.pointerEvents = imgNode.style.pointerEvents;
+            imgNode.style.pointerEvents = 'none';
+        }
+    
+        chrome.runtime.sendMessage({ action: 'SET_IMAGE_ATTRS', data: {
+            imgSrc,
+            attributes: imgAttributes,
+        } });
+    };
+
     const imgNode = Array.from(document.querySelectorAll('img')).find(img => img.src === imgSrc);
     if (imgNode) {
-        imgNode.ondragstart = (e) => e.preventDefault();
-        imgNode.onclick = (e) => e.preventDefault();
-        imgNode.addEventListener('click', function(event) {
-            event.preventDefault();
-        }, { passive: false });
-        imgNode.style.touchAction = 'none';
-        imgNode.style.pointerEvents = 'none';
+        disableUserInteraction(imgNode);
 
         const imgRect = imgNode.getBoundingClientRect();
         const widthScale = imgNode.width / imgNode.naturalWidth;
