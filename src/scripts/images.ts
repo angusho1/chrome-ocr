@@ -49,6 +49,7 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
 
         if (imgNode.draggable) {
             imgNode.ondragstart = (e) => e.preventDefault();
+            imgNode.draggable = false;
             imgAttributes.draggable = true;
         }
 
