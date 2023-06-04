@@ -36,14 +36,7 @@ const Popup = () => {
           symbols = imageScanData[imgSrc];
         }
 
-        await chrome.scripting.executeScript({
-          target: {
-            tabId: tab.id as number,
-            allFrames: true
-          },
-          func: insertHtml,
-          args: [imgSrc, symbols]
-        });
+        await executeScript(insertHtml, [imgSrc, symbols])
       })();
       jobs.push(job);
     });
@@ -73,7 +66,7 @@ const Popup = () => {
     if (extensionState.mode === ImageViewMode.OFF && !extensionState.scanned) {
       scanImages();
     }
-  }, [extensionState]);
+  }, [extensionState.mode, extensionState.scanned]);
 
   return (
     <div className="App">

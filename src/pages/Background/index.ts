@@ -10,7 +10,7 @@ let state: ExtensionState = {
     scanned: false,
 };
 
-export const executeScript = async (func: () => void) => {
+export const executeScript = async (func: (...args: any[]) => void, args?: any[]) => {
     const [tab] = await chrome.tabs.query({ active: true });
     chrome.scripting.executeScript({
         target: {
@@ -18,6 +18,7 @@ export const executeScript = async (func: () => void) => {
             allFrames: true
         },
         func,
+        ...{ args: args || undefined }
     });
 };
 
