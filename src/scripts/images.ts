@@ -73,24 +73,35 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
         } });
     };
 
+    const insertWrapperParent = (imgNode: HTMLImageElement) => {
+        const existingParent = imgNode.parentNode;
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = imgNode.style.cssText;
+        wrapper.style.position = 'relative';
+        existingParent?.replaceChild(wrapper, imgNode);
+        wrapper.appendChild(imgNode);
+
+        return wrapper;
+    };
+
     const imgNode = Array.from(document.querySelectorAll('img')).find(img => img.src === imgSrc);
     if (imgNode) {
         disableUserInteraction(imgNode);
+        const imageWrapper = insertWrapperParent(imgNode);
 
-        const imgRect = imgNode.getBoundingClientRect();
         const widthScale = imgNode.width / imgNode.naturalWidth;
         const heightScale = imgNode.height / imgNode.naturalHeight;
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'ocr-overlay-wrapper';
+        const textWrapper = document.createElement('div');
+        textWrapper.className = 'ocr-overlay-wrapper';
         
         symbols.forEach((symbol, index) => {
             const bbox = symbol.bbox;
             const div = document.createElement('div');
             div.style.border = '1px solid red';
             div.style.position = 'absolute';
-            div.style.left = `${imgRect.left + window.scrollX + (bbox.x0 * widthScale)}px`;
-            div.style.top = `${imgRect.top + window.scrollY + (bbox.y0 * heightScale)}px`;
+            div.style.left = `${window.scrollX + (bbox.x0 * widthScale)}px`;
+            div.style.top = `${window.scrollY + (bbox.y0 * heightScale)}px`;
             div.style.width = `${(bbox.x1 - bbox.x0) * widthScale}px`;
             const scaledBboxHeight = (bbox.y1 - bbox.y0) * heightScale;
             div.style.height = `${scaledBboxHeight}px`;
@@ -123,9 +134,9 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
             after.style.pointerEvents = 'none';
             div.appendChild(after);
 
-            wrapper.appendChild(div);
+            textWrapper.appendChild(div);
         });
 
-        document.body.appendChild(wrapper);
+        imageWrapper.appendChild(textWrapper);
     }
 };
