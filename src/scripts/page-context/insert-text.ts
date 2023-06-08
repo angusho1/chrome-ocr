@@ -1,47 +1,4 @@
-import Tesseract, { createWorker } from "tesseract.js";
-import { ImageAttributes, ScanPageResult, SymbolData } from "../types/script.types";
-
-export const getImageSrcsFromPage = async (tab: chrome.tabs.Tab): Promise<string[]> => {
-    const injectionResults = await chrome.scripting.executeScript({
-        target: {
-            tabId: tab.id as number,
-            allFrames: true
-        },
-        func: scanPage,
-    });
-
-    if (!injectionResults || !injectionResults.length) {
-        console.log('No images found');
-        return [];
-    }
-
-    return injectionResults.map(frame => frame.result.imgSrcs).flat(1);
-};
-
-export const scanPage = (): ScanPageResult => {
-    const images = Array.from(document.querySelectorAll('img'));
-    return {
-        imgSrcs: images.map(img => img.src),
-    };
-};
-
-export const extractText = async (imgSrc: string) => {
-    const worker = await createWorker({
-        workerPath: 'worker.min.js',
-        workerBlobURL: false,
-        langPath: 'lang-data',
-        corePath: 'tesseract-core-simd.wasm.js',
-        // logger: m => console.log(m)
-    });
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
-    const res = await worker.recognize(imgSrc);
-    console.log(res);
-    
-    await worker.terminate();
-
-    return res.data;
-};
+import { ImageAttributes, SymbolData } from "../../types/script.types";
 
 export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
     const disableUserInteraction = (imgNode: HTMLImageElement) => {

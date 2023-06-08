@@ -1,25 +1,14 @@
 import { ChromeStorageKeys } from "../../constants/chrome-storage";
 import { KeyboardCommands } from "../../constants/keyboard-actions.const";
 import { BackgroundMessageActions, ExtensionMessageActions } from "../../constants/messaging.const";
-import { hideScanResults, showScanResults } from "../../scripts/lifecycle";
+import { hideScanResults, showScanResults } from "../../scripts/page-context/lifecycle";
+import { executeScript } from "../../scripts/utils/execute-script";
 import { ImageAttributes } from "../../types/script.types";
 import { ExtensionState, ImageViewMode } from "../../types/state.types";
 
 let state: ExtensionState = {
     mode: ImageViewMode.OFF,
     scanned: false,
-};
-
-export const executeScript = async (func: (...args: any[]) => void, args?: any[]) => {
-    const [tab] = await chrome.tabs.query({ active: true });
-    chrome.scripting.executeScript({
-        target: {
-            tabId: tab.id as number,
-            allFrames: true
-        },
-        func,
-        ...{ args: args || undefined }
-    });
 };
 
 chrome.commands.onCommand.addListener((command) => {

@@ -1,10 +1,4 @@
-import { ImageAttributes } from "../types/script.types";
-
-export const addUnloadListener = () => {
-    window.addEventListener('beforeunload', function() {
-        chrome.storage.local.clear();
-    });
-};
+import { ImageAttributes } from "../../types/script.types";
 
 export const showScanResults = () => {
     const wrapperDivs = Array.from(document.getElementsByClassName('ocr-overlay-wrapper'));
