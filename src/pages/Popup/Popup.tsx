@@ -1,24 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import './Popup.css';
 import { showScanResults } from '../../scripts/page-context/lifecycle';
-import { useExtensionState } from '../../hooks/extension-state.hooks';
-import { ImageViewMode } from '../../types/state.types';
+import { useAppState } from '../../hooks/extension-state.hooks';
+import { DisplayMode } from '../../types/state.types';
 import { scanImagesAndInsertText } from '../../scripts/extension-context/scan-page';
 import { setOnPageUnloadListener } from '../../scripts/extension-context/lifecycle';
 import { executeScript } from '../../scripts/utils/execute-script';
 
 const Popup = () => {
   const [isScanning, setIsScanning] = useState<boolean>();
-  const { extensionState, setState: setScanned } = useExtensionState();
+  const { app, setAppState } = useAppState();
 
   const scanImages = async () => {
-    if (extensionState.scanned) executeScript(showScanResults);
+    if (app.scanState.scanned) executeScript(showScanResults);
     setIsScanning(true);
 
     await scanImagesAndInsertText();
 
     setIsScanning(false);
-    setScanned({ scanned: true, mode: ImageViewMode.SYMBOLS });
+    setAppState({
+      ...app,
+      scanState: {
+        ...app.scanState,
+        scanned: true,
+      },
+      displayMode: DisplayMode.SYMBOLS,
+    });
   };
 
   useEffect(() => {
@@ -26,10 +33,10 @@ const Popup = () => {
   }, []);
 
   useEffect(() => {
-    if (extensionState.mode === ImageViewMode.OFF && !extensionState.scanned) {
+    if (app.displayMode === DisplayMode.OFF && !app.scanState.scanned) {
       scanImages();
     }
-  }, [extensionState.mode, extensionState.scanned]);
+  }, [app.displayMode, app.scanState.scanned]);
 
   return (
     <div className="App">

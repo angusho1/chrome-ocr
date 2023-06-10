@@ -1,37 +1,35 @@
 import { ChromeStorageKeys } from "../../constants/chrome-storage";
+import { DEFAULT_APP_STATE } from "../../constants/default-app.const";
 import { KeyboardCommands } from "../../constants/keyboard-actions.const";
-import { BackgroundMessageActions, ExtensionMessageActions } from "../../constants/messaging.const";
+import { GetStateActions, PublishMessageActions, SetStateActions } from "../../constants/messaging.const";
 import { hideScanResults, showScanResults } from "../../scripts/page-context/lifecycle";
 import { executeScript } from "../../scripts/utils/execute-script";
 import { ImageAttributes } from "../../types/script.types";
-import { ExtensionState, ImageViewMode } from "../../types/state.types";
+import { App, DisplayMode } from "../../types/state.types";
 
-let state: ExtensionState = {
-    mode: ImageViewMode.OFF,
-    scanned: false,
-};
+let app: App = DEFAULT_APP_STATE;
 
 chrome.commands.onCommand.addListener((command) => {
-    console.log(state);
+    console.log(app);
     if (command === KeyboardCommands.TOGGLE_MODE) {
-        if (!state.scanned) return;
-        if (state.mode === ImageViewMode.OFF) {
+        if (!app.scanState.scanned) return;
+        if (app.displayMode === DisplayMode.OFF) {
             executeScript(showScanResults);
-            state.mode = ImageViewMode.SYMBOLS;
-        } else if (state.mode === ImageViewMode.SYMBOLS) {
+            app.displayMode = DisplayMode.SYMBOLS;
+        } else if (app.displayMode === DisplayMode.SYMBOLS) {
             executeScript(hideScanResults);
-            state.mode = ImageViewMode.OFF;
+            app.displayMode = DisplayMode.OFF;
         }
-        chrome.runtime.sendMessage({ action: BackgroundMessageActions.UPDATE_STATE, data: state });
+        chrome.runtime.sendMessage({ action: PublishMessageActions.PUBLISH_STATE, data: app });
     }
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === ExtensionMessageActions.GET_STATE) {
-        sendResponse(state);
-    } else if (message.action === ExtensionMessageActions.SET_STATE) {
-        state = message.data;
-        chrome.runtime.sendMessage({ action: BackgroundMessageActions.UPDATE_STATE, data: state });
+    if (message.action === GetStateActions.GET_STATE) {
+        sendResponse(app);
+    } else if (message.action === SetStateActions.SET_STATE) {
+        app = message.data;
+        chrome.runtime.sendMessage({ action: PublishMessageActions.PUBLISH_STATE, data: app });
     } else if (message.action === 'GET_IMAGE_ATTRS') {
         getImagesAttributes(sendResponse);
     } else if (message.action === 'SET_IMAGE_ATTRS') {

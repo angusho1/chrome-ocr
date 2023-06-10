@@ -1,9 +1,18 @@
-export enum ImageViewMode {
+export type App = {
+    displayMode: DisplayMode;
+    scanState: ScanState;
+    settings: ExtensionSettings;
+};
+
+export enum DisplayMode {
     OFF,
     SYMBOLS,
-}
+};
 
-export type ExtensionState = {
-    mode: ImageViewMode;
+export type ScanState = {
     scanned: boolean;
+};
+
+export type ExtensionSettings = {
+    scanOnOpen: boolean;
 };

@@ -1,37 +1,37 @@
 import { useEffect, useState } from "react";
-import { ExtensionState, ImageViewMode } from "../types/state.types";
-import { BackgroundMessageActions, ExtensionMessageActions } from "../constants/messaging.const";
+import { App } from "../types/state.types";
+import { GetStateActions, PublishMessageActions, SetStateActions } from "../constants/messaging.const";
+import { DEFAULT_APP_STATE } from "../constants/default-app.const";
 
-export type ExtensionStateResult = {
-    extensionState: ExtensionState;
-    setState: (state: ExtensionState) => void;
+export type AppStateResult = {
+    app: App;
+    setAppState: (state: App) => void;
 }
 
-export const useExtensionState = (): ExtensionStateResult => {
-    const [extensionState, setExtensionState] = useState<ExtensionState | undefined>(undefined);
+export const useAppState = (): AppStateResult => {
+    const [state, setState] = useState<App | undefined>(undefined);
 
-    const setState = (state: ExtensionState) => {
-        chrome.runtime.sendMessage({ action: ExtensionMessageActions.SET_STATE, data:  state });
+    const setAppState = (state: App) => {
+        chrome.runtime.sendMessage({ action: SetStateActions.SET_STATE, data: state });
     };
 
     useEffect(() => {
         chrome.runtime.onMessage.addListener(function(message) {
-            if (message.action === BackgroundMessageActions.UPDATE_STATE) {
-                const state = message.data;
-                setExtensionState(state);
+            if (message.action === PublishMessageActions.PUBLISH_STATE) {
+                setState(message.data);
             }
         });
     }, []);
 
     useEffect(() => {
-        if (!extensionState) {
-            chrome.runtime.sendMessage({ action: ExtensionMessageActions.GET_STATE })
-                .then(state => setExtensionState(state));
+        if (!state) {
+            chrome.runtime.sendMessage({ action: GetStateActions.GET_STATE })
+                .then(state => setState(state));
         }
-    }, [extensionState]);
+    }, [state]);
 
     return {
-        extensionState: extensionState || { mode: ImageViewMode.OFF, scanned: false },
-        setState,
+        app: state || DEFAULT_APP_STATE,
+        setAppState,
     };
 };
