@@ -5,7 +5,4 @@ export const DEFAULT_APP_STATE: App = {
     scanState: {
         scanned: false,
     },
-    settings: {
-        scanOnOpen: true,
-    },
 };

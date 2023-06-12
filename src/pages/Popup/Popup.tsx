@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import './Popup.css';
 import { showScanResults } from '../../scripts/page-context/lifecycle';
-import { useAppState } from '../../hooks/extension-state.hooks';
+import { useAppState } from '../../hooks/app-state.hooks';
 import { DisplayMode } from '../../types/state.types';
 import { scanImagesAndInsertText } from '../../scripts/extension-context/scan-page';
 import { setOnPageUnloadListener } from '../../scripts/extension-context/lifecycle';
 import { executeScript } from '../../scripts/utils/execute-script';
+import { useExtensionSettings } from '../../hooks/extension-settings.hooks';
 
 const Popup = () => {
   const [isScanning, setIsScanning] = useState<boolean>();
   const { app, setAppState } = useAppState();
+  const { settings } = useExtensionSettings();
 
   const scanImages = async () => {
     if (app.scanState.scanned) executeScript(showScanResults);
@@ -28,15 +30,20 @@ const Popup = () => {
     });
   };
 
+  const shouldScan = app.displayMode === DisplayMode.OFF 
+                      && !app.scanState.scanned 
+                      && settings.scanOnOpen;
+
   useEffect(() => {
     setOnPageUnloadListener();
   }, []);
 
   useEffect(() => {
-    if (app.displayMode === DisplayMode.OFF && !app.scanState.scanned) {
+    if (shouldScan) {
       scanImages();
     }
-  }, [app.displayMode, app.scanState.scanned]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldScan]);
 
   return (
     <div className="App">

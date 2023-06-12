@@ -1,0 +1,12 @@
+@media (prefers-color-scheme: dark) {
+    html {
+        background-color: #2d2d2d;
+    }
+    .Container {
+        color: white;
+    }
+}
+
+.OptionsContainer {
+    font-size: large;
+}
