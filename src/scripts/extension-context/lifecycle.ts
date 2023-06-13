@@ -1,16 +1,23 @@
+import { executeScript } from "../utils/execute-script";
+
 export const setOnPageUnloadListener = async () => {
-    const [tab] = await chrome.tabs.query({ active: true });
-    chrome.scripting.executeScript({
-        target: {
-            tabId: tab.id as number,
-            allFrames: true
-        },
-        func: addUnloadListener,
-    });
+    executeScript(addUnloadListener);
 };
 
 const addUnloadListener = () => {
     window.addEventListener('beforeunload', function() {
         chrome.storage.local.clear();
+        chrome.runtime.sendMessage({ action: 'get_state' })
+            .then(app => {
+                chrome.runtime.sendMessage({
+                    action: 'set_state',
+                    data: {
+                        ...app,
+                        scanState: {
+                            scanned: false,
+                        }
+                    },
+                });
+            });
     });
 };

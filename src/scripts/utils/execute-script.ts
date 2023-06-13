@@ -9,3 +9,5 @@ export const executeScript = async (func: (...args: any[]) => void, args?: any[]
         ...{ args: args || undefined }
     });
 };
+
+export const pageConsoleLog = (...args: any[]) => executeScript((d: any) => console.log(...d), [args]);

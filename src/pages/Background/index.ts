@@ -39,21 +39,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             break;
         case GetStateActions.GET_SETTINGS:
             getSettings(sendResponse);
-            break;
+            return true;
         case SetStateActions.SET_SETTINGS:
             setExtensionSettings(message.data);
             sendMessage(PublishMessageActions.PUBLISH_SETTINGS, message.data);
             break;
         case 'GET_IMAGE_ATTRS':
             getImagesAttributes(sendResponse);
-            break;
+            return true;
         case 'SET_IMAGE_ATTRS':
             setImageAttributes(message.data);
             break;
         default:
             console.log('Unknown action', message.action);
     }
-    return true;
 });
 
 const getImagesAttributes = async (sendResponse: (res: any) => void) => {
