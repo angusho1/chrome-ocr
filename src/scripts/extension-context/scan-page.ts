@@ -3,8 +3,9 @@ import { getImageSrcsFromPage } from '../page-context/scan-page';
 import { extractText } from './tesseract';
 import { ChromeStorageKeys } from '../../constants/chrome-storage';
 import { executeScript } from '../utils/execute-script';
+import { ExtractTextOptions } from '../../types/tesseract.types';
 
-export const scanImagesAndInsertText = async () => {
+export const scanImagesAndInsertText = async (options?: ExtractTextOptions) => {
     const [tab] = await chrome.tabs.query({ active: true });
 
     const imageSrcs = await getImageSrcsFromPage(tab);
@@ -19,8 +20,7 @@ export const scanImagesAndInsertText = async () => {
             let symbols;
             if (!imageScanData[imgSrc]) {
                 try {
-                    console.log(imgSrc);
-                    const res = await extractText(imgSrc);
+                    const res = await extractText(imgSrc, options);
                     symbols = res.symbols
                         .filter(symbol => symbol.confidence > 95)
                         .map(symbol => ({ bbox: symbol.bbox, text: symbol.text }));

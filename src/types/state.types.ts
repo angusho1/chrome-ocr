@@ -1,3 +1,5 @@
+import { PSM } from "tesseract.js";
+
 export type App = {
     displayMode: DisplayMode;
     scanState: ScanState;
@@ -14,4 +16,5 @@ export type ScanState = {
 
 export type ExtensionSettings = {
     scanOnOpen: boolean;
+    pageSegmentationMode: PSM;
 };

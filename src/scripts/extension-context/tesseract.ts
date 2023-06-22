@@ -1,6 +1,7 @@
 import { createWorker } from "tesseract.js";
+import { ExtractTextOptions } from "../../types/tesseract.types";
 
-export const extractText = async (imgSrc: string) => {
+export const extractText = async (imgSrc: string, options?: ExtractTextOptions) => {
     const worker = await createWorker({
         workerPath: 'worker.min.js',
         workerBlobURL: false,
@@ -10,6 +11,13 @@ export const extractText = async (imgSrc: string) => {
     });
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
+
+    if (options) {
+        await worker.setParameters({
+            tessedit_pageseg_mode: options.psm || undefined,
+        });
+    }
+    
     const res = await worker.recognize(imgSrc);
     console.log(res);
     

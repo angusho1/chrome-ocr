@@ -17,7 +17,9 @@ const Popup = () => {
     if (app.scanState.scanned) executeScript(showScanResults);
     setIsScanning(true);
 
-    await scanImagesAndInsertText();
+    await scanImagesAndInsertText({
+      psm: settings.pageSegmentationMode,
+    });
 
     setIsScanning(false);
     setAppState({
