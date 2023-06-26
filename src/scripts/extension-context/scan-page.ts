@@ -1,16 +1,16 @@
 import { insertHtml } from '../page-context/insert-text';
 import { getImageSrcsFromPage } from '../page-context/scan-page';
 import { extractText } from './tesseract';
-import { ChromeStorageKeys } from '../../constants/chrome-storage';
 import { executeScript } from '../utils/execute-script';
 import { ExtractTextOptions } from '../../types/tesseract.types';
+import { initImageScanDataHandler } from '../utils/ImageScanDataHandler';
 
 export const scanImagesAndInsertText = async (options?: ExtractTextOptions) => {
     const [tab] = await chrome.tabs.query({ active: true });
 
     const imageSrcs = await getImageSrcsFromPage(tab);
 
-    const imageScanData = (await chrome.storage.local.get([ChromeStorageKeys.IMAGE_DATA_KEY]))[ChromeStorageKeys.IMAGE_DATA_KEY] || {};
+    const storage = await initImageScanDataHandler();
 
     const jobs: Promise<void>[] = [];
     imageSrcs.forEach(async (imgSrc) => {
@@ -18,20 +18,20 @@ export const scanImagesAndInsertText = async (options?: ExtractTextOptions) => {
 
         const job = (async () => {
             let symbols;
-            if (!imageScanData[imgSrc]) {
+            if (!storage.dataExists(imgSrc)) {
                 try {
                     const res = await extractText(imgSrc, options);
                     symbols = res.symbols
                         .filter(symbol => symbol.confidence > 95)
                         .map(symbol => ({ bbox: symbol.bbox, text: symbol.text }));
-    
-                    imageScanData[imgSrc] = symbols;
+
+                    storage.set(imgSrc, symbols);
                 } catch (e) {
                     console.log(`Couldn't extract text for image with src ${imgSrc}`, e);
                     return;
                 }
             } else {
-                symbols = imageScanData[imgSrc];
+                symbols = storage.get(imgSrc);
             }
 
             await executeScript(insertHtml, [imgSrc, symbols])
@@ -40,5 +40,5 @@ export const scanImagesAndInsertText = async (options?: ExtractTextOptions) => {
     });
 
     await Promise.all(jobs);
-    await chrome.storage.local.set({ [ChromeStorageKeys.IMAGE_DATA_KEY]: imageScanData });
+    await storage.commit();
 }
