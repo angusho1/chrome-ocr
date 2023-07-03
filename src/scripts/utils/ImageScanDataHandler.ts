@@ -1,8 +1,8 @@
 import { ChromeStorageKeys } from "../../constants/chrome-storage";
-import { ImageScanaData, SymbolData } from "../../types/script.types";
+import { ImageScanResultsStore, ImageScanResults } from "../../types/script.types";
 
 class ImageScanDataHandler {
-    private _imageScanData: ImageScanaData;
+    private _imageScanData: ImageScanResultsStore;
     private hasLoaded: boolean;
 
     constructor() {
@@ -25,7 +25,7 @@ class ImageScanDataHandler {
         return this._imageScanData[imgSrc];
     }
 
-    public set(imgSrc: string, data: SymbolData[]) {
+    public set(imgSrc: string, data: ImageScanResults) {
         this._imageScanData[imgSrc] = data;
     }
 

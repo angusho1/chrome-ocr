@@ -1,6 +1,6 @@
-import { ImageAttributes, SymbolData } from "../../types/script.types";
+import { ImageAttributes, Snippet } from "../../types/script.types";
 
-export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
+export const insertHtml = (imgSrc: string, snippets: Snippet[]) => {
     const disableUserInteraction = (imgNode: HTMLImageElement) => {
         const imgAttributes: ImageAttributes = {};
 
@@ -52,8 +52,8 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
         const textWrapper = document.createElement('div');
         textWrapper.className = 'ocr-overlay-wrapper';
         
-        symbols.forEach((symbol, index) => {
-            const bbox = symbol.bbox;
+        snippets.forEach((snippet, index) => {
+            const bbox = snippet.bbox;
             const div = document.createElement('div');
             div.style.border = '1px solid red';
             div.style.position = 'absolute';
@@ -63,7 +63,7 @@ export const insertHtml = (imgSrc: string, symbols: SymbolData[]) => {
             const scaledBboxHeight = (bbox.y1 - bbox.y0) * heightScale;
             div.style.height = `${scaledBboxHeight}px`;
             
-            div.innerText = symbol.text;
+            div.innerText = snippet.text;
             div.style.color = 'rgba(0, 0, 0, 0)';
             div.style.fontSize = `${scaledBboxHeight}px`;
 

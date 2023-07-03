@@ -60,6 +60,11 @@ export const PSM_MAP: PageSegmentationModeMap = {
     }
 };
 
+export const CHARACTER_MIN_CONFIDENCE = 95;
+export const WORD_MIN_CONFIDENCE = 85;
+export const LINE_MIN_CONFIDENCE = 50;
+export const PARAGRAPH_MIN_CONFIDENCE = 50;
+export const BLOCK_MIN_CONFIDENCE = 50;
 
 type PageSegmentationModeMap = {
     [key in PSM]: {
