@@ -1,13 +1,17 @@
 import { PSM } from "tesseract.js";
 
 export type App = {
+    active: boolean;
     displayMode: DisplayMode;
     scanState: ScanState;
 };
 
 export enum DisplayMode {
-    OFF,
-    SYMBOLS,
+    CHARACTERS = 'Characters',
+    WORDS = 'Words',
+    LINES = 'Lines',
+    PARAGRAPHS = 'Paragraphs',
+    BLOCKS = 'Blocks',
 };
 
 export type ScanState = {

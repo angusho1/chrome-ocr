@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { BaseSyntheticEvent, useEffect, useState } from 'react';
 import './Popup.css';
 import { showScanResults } from '../../scripts/page-context/lifecycle';
 import { useAppState } from '../../hooks/app-state.hooks';
@@ -18,7 +18,10 @@ const Popup = () => {
     setIsScanning(true);
 
     await scanImagesAndInsertText({
-      psm: settings.pageSegmentationMode,
+      displayMode: app.displayMode,
+      extractTextOptions: {
+        psm: settings.pageSegmentationMode,
+      },
     });
 
     setIsScanning(false);
@@ -28,11 +31,17 @@ const Popup = () => {
         ...app.scanState,
         scanned: true,
       },
-      displayMode: DisplayMode.SYMBOLS,
     });
   };
 
-  const shouldScan = app.displayMode === DisplayMode.OFF 
+  const displayModeChange = (e: BaseSyntheticEvent) => {
+    setAppState({
+      ...app,
+      displayMode: e.target.value,
+    });
+  };
+
+  const shouldScan = !app.active 
                       && !app.scanState.scanned 
                       && settings.scanOnOpen;
 
@@ -50,6 +59,18 @@ const Popup = () => {
   return (
     <div className="App">
       <header className="App-header">
+        <div className="Option">
+          <label htmlFor="displayMode">Display Mode</label>
+          <select
+            name="displayMode"
+            onChange={displayModeChange}
+            value={app.displayMode}
+          >
+            { Object.values(DisplayMode).map(mode => (
+              <option key={mode} value={mode}>{mode}</option>
+            )) }
+          </select>
+        </div>
         <div>
           { isScanning ? 'Scanning Images...' : null }
         </div>

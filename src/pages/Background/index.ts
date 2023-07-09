@@ -6,7 +6,7 @@ import { GetStateActions, PublishMessageActions, SetStateActions } from "../../c
 import { hideScanResults, showScanResults } from "../../scripts/page-context/lifecycle";
 import { executeScript } from "../../scripts/utils/execute-script";
 import { ImageAttributes } from "../../types/script.types";
-import { App, DisplayMode, ExtensionSettings } from "../../types/state.types";
+import { App, ExtensionSettings } from "../../types/state.types";
 
 let app: App = DEFAULT_APP_STATE;
 
@@ -17,12 +17,12 @@ export const sendMessage = (action: string, data: any) => {
 chrome.commands.onCommand.addListener((command) => {
     if (command === KeyboardCommands.TOGGLE_MODE) {
         if (!app.scanState.scanned) return;
-        if (app.displayMode === DisplayMode.OFF) {
+        if (!app.active) {
             executeScript(showScanResults);
-            app.displayMode = DisplayMode.SYMBOLS;
-        } else if (app.displayMode === DisplayMode.SYMBOLS) {
+            app.active = true;
+        } else {
             executeScript(hideScanResults);
-            app.displayMode = DisplayMode.OFF;
+            app.active = false;
         }
         sendMessage(PublishMessageActions.PUBLISH_STATE, app);
     }
