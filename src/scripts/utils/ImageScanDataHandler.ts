@@ -1,12 +1,12 @@
 import { ChromeStorageKeys } from "../../constants/chrome-storage";
-import { ImageScanResultsStore, ImageScanResults } from "../../types/script.types";
+import { ImageScanResultsStore, ImageScanResultsEntry } from "../../types/script.types";
 
 class ImageScanDataHandler {
-    private _imageScanData: ImageScanResultsStore;
+    private _imageScanResultsStore: ImageScanResultsStore;
     private hasLoaded: boolean;
 
     constructor() {
-        this._imageScanData = {};
+        this._imageScanResultsStore = {};
         this.hasLoaded = false;
     }
 
@@ -17,24 +17,29 @@ class ImageScanDataHandler {
 
     public async loadStorageData() {
         const storageData = await this.getStorageData();
-        this._imageScanData = storageData || {};
+        this._imageScanResultsStore = storageData || {};
         this.hasLoaded = true;
     }
 
     public get(imgSrc: string) {
-        return this._imageScanData[imgSrc];
+        return this._imageScanResultsStore[imgSrc];
     }
 
-    public set(imgSrc: string, data: ImageScanResults) {
-        this._imageScanData[imgSrc] = data;
+    public set(data: ImageScanResultsEntry) {
+        const { imgSrc } = data;
+        this._imageScanResultsStore[imgSrc] = data;
+    }
+
+    public getResultsForTab(tabId: number) {
+        return Object.values(this._imageScanResultsStore).filter(entry => entry.tabId === tabId);
     }
 
     public dataExists(imgSrc: string) {
-        return imgSrc in this._imageScanData && !!this.get(imgSrc);
+        return imgSrc in this._imageScanResultsStore && !!this.get(imgSrc);
     }
 
     public async commit() {
-        await chrome.storage.local.set({ [ChromeStorageKeys.IMAGE_DATA_KEY]: this._imageScanData });
+        await chrome.storage.local.set({ [ChromeStorageKeys.IMAGE_DATA_KEY]: this._imageScanResultsStore });
     }
 }
 

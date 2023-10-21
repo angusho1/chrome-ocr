@@ -1,6 +1,6 @@
 import React, { BaseSyntheticEvent, useEffect, useState } from 'react';
 import './Popup.css';
-import { showScanResults } from '../../scripts/page-context/lifecycle';
+import { showScanResults } from '../../scripts/page-context/text-display';
 import { useAppState } from '../../hooks/app-state.hooks';
 import { DisplayMode } from '../../types/state.types';
 import { scanImagesAndInsertText } from '../../scripts/extension-context/scan-page';
@@ -17,6 +17,7 @@ const Popup = () => {
     if (app.scanState.scanned) executeScript(showScanResults);
     setIsScanning(true);
 
+    // TODO: tesseract worker doesn't work in the background, so we're calling it from the popup instead
     await scanImagesAndInsertText({
       displayMode: app.displayMode,
       extractTextOptions: {
@@ -27,6 +28,7 @@ const Popup = () => {
     setIsScanning(false);
     setAppState({
       ...app,
+      active: true,
       scanState: {
         ...app.scanState,
         scanned: true,
@@ -34,11 +36,17 @@ const Popup = () => {
     });
   };
 
-  const displayModeChange = (e: BaseSyntheticEvent) => {
+  const onDisplayModeSelect = (e: BaseSyntheticEvent) => {
     setAppState({
       ...app,
       displayMode: e.target.value,
     });
+  };
+
+  const displayModeChange = () => {
+    if (app.active && app.scanState.scanned) {
+      executeScript(showScanResults);
+    }
   };
 
   const shouldScan = !app.active 
@@ -56,6 +64,11 @@ const Popup = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldScan]);
 
+  useEffect(() => {
+    displayModeChange();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [app.displayMode]);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -63,7 +76,7 @@ const Popup = () => {
           <label htmlFor="displayMode">Display Mode</label>
           <select
             name="displayMode"
-            onChange={displayModeChange}
+            onChange={onDisplayModeSelect}
             value={app.displayMode}
           >
             { Object.values(DisplayMode).map(mode => (

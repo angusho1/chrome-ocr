@@ -1,4 +1,4 @@
-import { insertHtml } from '../page-context/insert-text';
+import { insertSnippets } from '../page-context/text-display';
 import { getImageSrcsFromPage } from '../page-context/scan-page';
 import { extractText, parseExtractResult } from './tesseract';
 import { executeScript } from '../utils/execute-script';
@@ -31,17 +31,21 @@ export const scanImagesAndInsertText = async (options?: ScanImageOptions) => {
                     const res = await extractText(imgSrc, options?.extractTextOptions);
                     imageScanResults = parseExtractResult(res);
 
-                    storage.set(imgSrc, imageScanResults);
+                    storage.set({
+                        imgSrc,
+                        tabId: tab.id,
+                        scanResults: imageScanResults,
+                    });
                 } catch (e) {
                     console.log(`Couldn't extract text for image with src ${imgSrc}`, e);
                     return;
                 }
             } else {
-                imageScanResults = storage.get(imgSrc);
+                imageScanResults = storage.get(imgSrc).scanResults;
             }
 
             let snippets: Snippet[];
-            const displayMode = options?.displayMode ? options.displayMode : DEFAULT_APP_STATE.displayMode;
+            const displayMode = options?.displayMode ?? DEFAULT_APP_STATE.displayMode;
 
             switch (displayMode) {
                 case DisplayMode.CHARACTERS:
@@ -64,7 +68,7 @@ export const scanImagesAndInsertText = async (options?: ScanImageOptions) => {
                     break;
             }
 
-            await executeScript(insertHtml, [imgSrc, snippets])
+            await executeScript(insertSnippets, [imgSrc, snippets]);
         })();
         jobs.push(job);
     });

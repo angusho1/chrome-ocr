@@ -1,6 +1,6 @@
 import { ImageAttributes, Snippet } from "../../types/script.types";
 
-export const insertHtml = (imgSrc: string, snippets: Snippet[]) => {
+export const insertSnippets = (imgSrc: string, snippets: Snippet[]) => {
     const disableUserInteraction = (imgNode: HTMLImageElement) => {
         const imgAttributes: ImageAttributes = {};
 
@@ -96,4 +96,65 @@ export const insertHtml = (imgSrc: string, snippets: Snippet[]) => {
 
         imageWrapper.appendChild(textWrapper);
     }
+};
+
+export const showScanResults = () => {
+    const wrapperDivs = Array.from(document.getElementsByClassName('ocr-overlay-wrapper'));
+
+    wrapperDivs.forEach(div => {
+        (div as HTMLElement).style.display = 'block';
+    });
+};
+
+/**
+ * Remove all existing snippets in the DOM
+ */
+export const clearSnippets = () => {
+    const wrapperDivs = Array.from(document.getElementsByClassName('ocr-overlay-wrapper'));
+
+    wrapperDivs.forEach(div => {
+        (div as HTMLElement).innerHTML = '';
+    });
+};
+
+export const removeSnippets = () => {    
+    const images = Array.from(document.querySelectorAll('img'));
+
+    chrome.runtime.sendMessage({ action: 'GET_IMAGE_ATTRS' })
+        .then(interactionAttributes => {
+            console.log('interactionAttributes', interactionAttributes);
+            images.forEach((image) => {
+                const attributes: ImageAttributes = interactionAttributes[image.src];
+
+                if (!attributes) {
+                    console.log(`No attributes for ${image.src}`);
+                    return;
+                }
+
+                if (attributes.draggable) {
+                    image.draggable = true;
+                    image.ondragstart = (e) => {
+                        e.dataTransfer!.setDragImage(image, 0, 0);
+                    };
+                }
+
+                if (attributes.touchAction) {
+                    image.onclick = null;
+                    image.removeEventListener('click', function(event) {
+                        event.preventDefault();
+                    });
+                    image.style.touchAction = attributes.touchAction;
+                }
+
+                if (attributes.pointerEvents) {
+                    image.style.pointerEvents = attributes.pointerEvents;
+                }
+            });
+        });
+    
+    const wrapperDivs = Array.from(document.getElementsByClassName('ocr-overlay-wrapper'));
+
+    wrapperDivs.forEach(div => {
+        (div as HTMLElement).remove();
+    });
 };

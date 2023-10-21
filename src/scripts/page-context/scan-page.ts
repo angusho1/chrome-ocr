@@ -6,7 +6,7 @@ export const getImageSrcsFromPage = async (tab: chrome.tabs.Tab): Promise<string
             tabId: tab.id as number,
             allFrames: true
         },
-        func: scanPage,
+        func: queryPageForImages,
     });
 
     if (!injectionResults || !injectionResults.length) {
@@ -17,7 +17,7 @@ export const getImageSrcsFromPage = async (tab: chrome.tabs.Tab): Promise<string
     return injectionResults.map(frame => frame.result.imgSrcs).flat(1);
 };
 
-export const scanPage = (): ScanPageResult => {
+export const queryPageForImages = (): ScanPageResult => {
     const images = Array.from(document.querySelectorAll('img'));
     return {
         imgSrcs: images.map(img => img.src),

@@ -2,8 +2,14 @@ export type ScanPageResult = {
     imgSrcs: string[];
 };
 
+export type ImageScanResultsEntry = {
+    imgSrc: string;
+    tabId?: number;
+    scanResults: ImageScanResults;
+};
+
 export type ImageScanResultsStore = {
-    [imgSrc: string]: ImageScanResults;
+    [imgSrc: string]: ImageScanResultsEntry;
 };
 
 export type ImageScanResults = {

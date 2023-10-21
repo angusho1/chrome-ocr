@@ -3,10 +3,11 @@ import { DEFAULT_APP_STATE } from "../../constants/default-app.const";
 import { DEFAULT_EXTENSION_SETTINGS } from "../../constants/default-settings.const";
 import { KeyboardCommands } from "../../constants/keyboard-actions.const";
 import { GetStateActions, PublishMessageActions, SetStateActions } from "../../constants/messaging.const";
-import { hideScanResults, showScanResults } from "../../scripts/page-context/lifecycle";
+import { clearSnippets, insertSnippets, removeSnippets, showScanResults } from "../../scripts/page-context/text-display";
 import { executeScript } from "../../scripts/utils/execute-script";
-import { ImageAttributes } from "../../types/script.types";
-import { App, ExtensionSettings } from "../../types/state.types";
+import { initImageScanDataHandler } from "../../scripts/utils/ImageScanDataHandler";
+import { ImageAttributes, ImageScanResults } from "../../types/script.types";
+import { App, DisplayMode, ExtensionSettings } from "../../types/state.types";
 
 let app: App = DEFAULT_APP_STATE;
 
@@ -21,7 +22,7 @@ chrome.commands.onCommand.addListener((command) => {
             executeScript(showScanResults);
             app.active = true;
         } else {
-            executeScript(hideScanResults);
+            executeScript(removeSnippets);
             app.active = false;
         }
         sendMessage(PublishMessageActions.PUBLISH_STATE, app);
@@ -34,7 +35,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse(app);
             break;
         case SetStateActions.SET_STATE:
+            const prevDisplayMode = app.displayMode;
             app = message.data;
+            if (prevDisplayMode !== app.displayMode) {
+                displaySnippets();
+            }
             sendMessage(PublishMessageActions.PUBLISH_STATE, app);
             break;
         case GetStateActions.GET_SETTINGS:
@@ -77,3 +82,35 @@ const getSettings = async (sendResponse: (res: any) => void) => {
 const setExtensionSettings = (settings: ExtensionSettings) => {
     chrome.storage.sync.set({ [ChromeStorageKeys.EXTENSION_SETTINGS]: settings });
 };
+
+const displaySnippets = async () => {
+    const storage = await initImageScanDataHandler();
+    const [tab] = await chrome.tabs.query({ active: true });
+
+    if (tab.id) {
+        executeScript(clearSnippets);
+
+        const imageScanResults = storage.getResultsForTab(tab.id);
+        imageScanResults.forEach(entry => {
+            const snippets = getSnippets(entry.scanResults);
+            executeScript(insertSnippets, [entry.imgSrc, snippets]);
+        });
+    }
+};
+
+const getSnippets = (imageScanResults: ImageScanResults) => {
+    switch (app.displayMode) {
+        case DisplayMode.CHARACTERS:
+            return imageScanResults.characters;
+        case DisplayMode.WORDS:
+            return imageScanResults.words;
+        case DisplayMode.LINES:
+            return imageScanResults.lines;
+        case DisplayMode.PARAGRAPHS:
+            return imageScanResults.paragraphs;
+        case DisplayMode.BLOCKS:
+            return imageScanResults.blocks;
+        default:
+            return imageScanResults.words;
+    }
+}
