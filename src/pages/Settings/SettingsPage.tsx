@@ -1,5 +1,5 @@
 import React, { BaseSyntheticEvent } from 'react';
-import './Options.css';
+import './SettingsPage.css';
 import { useExtensionSettings } from '../../hooks/extension-settings.hooks';
 import { PSM_MAP } from '../../constants/tesseract.const';
 
@@ -7,7 +7,7 @@ interface Props {
   title: string;
 }
 
-const Options: React.FC<Props> = ({ title }: Props) => {
+const SettingsPage: React.FC<Props> = ({ title }: Props) => {
   const { settings, setSettings } = useExtensionSettings();
 
   const scanOnOpenChange = (e: BaseSyntheticEvent) => {
@@ -27,9 +27,9 @@ const Options: React.FC<Props> = ({ title }: Props) => {
   return (
     <div className="Container">
       <div>
-        <h1>{title} Page</h1>
+        <h1>{title}</h1>
       </div>
-      <div className="OptionsContainer">
+      <div className="SettingsContainer">
         <div className="Option">
           <label htmlFor="scanOnOpen">
             Scan images automatically when popup is opened
@@ -59,4 +59,4 @@ const Options: React.FC<Props> = ({ title }: Props) => {
   );
 };
 
-export default Options;
+export default SettingsPage;

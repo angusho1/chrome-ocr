@@ -11,4 +11,9 @@ export const SetStateActions = {
 export const PublishMessageActions = {
     PUBLISH_STATE: 'publish_state',
     PUBLISH_SETTINGS: 'publish_settings',
-}
+};
+
+export const ImageAttributeActions = {
+    GetImageAttributes: 'GET_IMAGE_ATTRS',
+    SetImageAttributes: 'SET_IMAGE_ATTRS',
+};

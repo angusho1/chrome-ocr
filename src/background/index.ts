@@ -1,13 +1,13 @@
-import { ChromeStorageKeys } from "../../constants/chrome-storage";
-import { DEFAULT_APP_STATE } from "../../constants/default-app.const";
-import { DEFAULT_EXTENSION_SETTINGS } from "../../constants/default-settings.const";
-import { KeyboardCommands } from "../../constants/keyboard-actions.const";
-import { GetStateActions, PublishMessageActions, SetStateActions } from "../../constants/messaging.const";
-import { clearSnippets, insertSnippets, removeSnippets, showScanResults } from "../../scripts/page-context/text-display";
-import { executeScript } from "../../scripts/utils/execute-script";
-import { initImageScanDataHandler } from "../../scripts/utils/ImageScanDataHandler";
-import { ImageAttributes, ImageScanResults } from "../../types/script.types";
-import { App, DisplayMode, ExtensionSettings } from "../../types/state.types";
+import { ChromeStorageKeys } from "../constants/chrome-storage";
+import { DEFAULT_APP_STATE } from "../constants/default-app.const";
+import { DEFAULT_EXTENSION_SETTINGS } from "../constants/default-settings.const";
+import { KeyboardCommands } from "../constants/keyboard-actions.const";
+import { GetStateActions, PublishMessageActions, SetStateActions } from "../constants/messaging.const";
+import { clearSnippets, insertSnippets, removeSnippets, showScanResults } from "../scripts/page-context/text-display";
+import { executeScript } from "../scripts/utils/execute-script";
+import { initImageScanDataHandler } from "../scripts/utils/ImageScanDataHandler";
+import { ImageAttributes, ImageScanResults } from "../types/script.types";
+import { App, DisplayMode, ExtensionSettings } from "../types/state.types";
 
 let app: App = DEFAULT_APP_STATE;
 

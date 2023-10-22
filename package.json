@@ -1,7 +1,7 @@
 {
   "name": "live-text-ocr-chrome-extension",
   "version": "1.0.0",
-  "description": "A chrome extension for detetcting text in media and making it selectable",
+  "description": "A chrome extension for detecting text in media and making it selectable",
   "license": "MIT",
   "scripts": {
     "build": "node utils/build.js",
