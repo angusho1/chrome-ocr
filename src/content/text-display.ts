@@ -55,12 +55,13 @@ export const insertSnippets = (imgSrc: string, snippets: Snippet[]) => {
         snippets.forEach((snippet, index) => {
             const bbox = snippet.bbox;
             const div = document.createElement('div');
+            const scaledBboxHeight = (bbox.y1 - bbox.y0) * heightScale;
+
             div.style.border = '1px solid red';
             div.style.position = 'absolute';
             div.style.left = `${window.scrollX + (bbox.x0 * widthScale)}px`;
             div.style.top = `${window.scrollY + (bbox.y0 * heightScale)}px`;
             div.style.width = `${(bbox.x1 - bbox.x0) * widthScale}px`;
-            const scaledBboxHeight = (bbox.y1 - bbox.y0) * heightScale;
             div.style.height = `${scaledBboxHeight}px`;
             
             div.innerText = snippet.text;

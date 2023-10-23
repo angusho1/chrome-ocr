@@ -1,12 +1,12 @@
 import React, { BaseSyntheticEvent, useEffect, useState } from 'react';
 import './Popup.css';
-import { showScanResults } from '../../content/text-display';
 import { useAppState } from '../../hooks/app-state.hooks';
 import { DisplayMode } from '../../types/state.types';
 import { scanImagesAndInsertText } from '../../background/scan-page';
 import { setOnPageUnloadListener } from '../../background/lifecycle';
 import { executeScript } from '../../utils/execute-script';
 import { useExtensionSettings } from '../../hooks/extension-settings.hooks';
+import Content from '../../content/scripts';
 
 const Popup = () => {
   const [isScanning, setIsScanning] = useState<boolean>();
@@ -14,7 +14,7 @@ const Popup = () => {
   const { settings } = useExtensionSettings();
 
   const scanImages = async () => {
-    if (app.scanState.scanned) executeScript(showScanResults);
+    if (app.scanState.scanned) executeScript(Content.showScanResults);
     setIsScanning(true);
 
     // TODO: tesseract worker doesn't work in the background, so we're calling it from the popup instead
@@ -45,7 +45,7 @@ const Popup = () => {
 
   const displayModeChange = () => {
     if (app.active && app.scanState.scanned) {
-      executeScript(showScanResults);
+      executeScript(Content.showScanResults);
     }
   };
 

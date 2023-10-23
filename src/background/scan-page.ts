@@ -1,5 +1,4 @@
-import { insertSnippets } from '../content/text-display';
-import { getImageSrcsFromPage } from '../content/scan-page';
+import Content from '../content/scripts';
 import { extractText, parseExtractResult } from './tesseract';
 import { executeScript } from '../utils/execute-script';
 import { ExtractTextOptions } from '../types/tesseract.types';
@@ -69,7 +68,7 @@ export const scanImagesAndInsertText = async (options?: ScanImageOptions) => {
                     break;
             }
 
-            await executeScript(insertSnippets, [imgSrc, snippets]);
+            await executeScript(Content.insertSnippets, [imgSrc, snippets]);
         })();
         jobs.push(job);
     });
@@ -77,3 +76,20 @@ export const scanImagesAndInsertText = async (options?: ScanImageOptions) => {
     await Promise.all(jobs);
     await storage.commit();
 }
+
+const getImageSrcsFromPage = async (tab: chrome.tabs.Tab): Promise<string[]> => {
+    const injectionResults = await chrome.scripting.executeScript({
+        target: {
+            tabId: tab.id as number,
+            allFrames: true
+        },
+        func: Content.queryPageForImages,
+    });
+
+    if (!injectionResults || !injectionResults.length) {
+        console.log('No images found');
+        return [];
+    }
+
+    return injectionResults.map(frame => frame.result.imgSrcs).flat(1);
+};

@@ -1,4 +1,4 @@
-import { clearSnippets, insertSnippets, removeSnippets, showScanResults } from "../../content/text-display";
+import Content from "../../content/scripts";
 import { ImageScanResults } from "../../types/script.types";
 import { DisplayMode } from "../../types/state.types";
 import { initImageScanDataHandler } from "../../utils/ImageScanDataHandler";
@@ -10,12 +10,12 @@ export const displaySnippets = async () => {
     const [tab] = await chrome.tabs.query({ active: true });
 
     if (tab.id) {
-        executeScript(clearSnippets);
+        executeScript(Content.clearSnippets);
 
         const imageScanResults = storage.getResultsForTab(tab.id);
         imageScanResults.forEach(entry => {
             const snippets = getSnippets(entry.scanResults);
-            executeScript(insertSnippets, [entry.imgSrc, snippets]);
+            executeScript(Content.insertSnippets, [entry.imgSrc, snippets]);
         });
     }
 };
@@ -25,10 +25,10 @@ export const toggleMode = () => {
 
     if (!app.scanState.scanned) return;
     if (!app.active) {
-        executeScript(showScanResults);
+        executeScript(Content.showScanResults);
         app.active = true;
     } else {
-        executeScript(removeSnippets);
+        executeScript(Content.removeSnippets);
         app.active = false;
     }  
 };
