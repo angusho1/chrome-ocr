@@ -1,4 +1,4 @@
-import { ImageAttributes, Snippet } from "../../types/script.types";
+import { ImageAttributes, Snippet } from "../types/script.types";
 
 export const insertSnippets = (imgSrc: string, snippets: Snippet[]) => {
     const disableUserInteraction = (imgNode: HTMLImageElement) => {
@@ -24,7 +24,7 @@ export const insertSnippets = (imgSrc: string, snippets: Snippet[]) => {
             imgNode.style.pointerEvents = 'none';
         }
     
-        chrome.runtime.sendMessage({ action: 'SET_IMAGE_ATTRS', data: {
+        chrome.runtime.sendMessage({ action: 'set_image_attributes', data: {
             imgSrc,
             attributes: imgAttributes,
         } });
@@ -120,7 +120,7 @@ export const clearSnippets = () => {
 export const removeSnippets = () => {    
     const images = Array.from(document.querySelectorAll('img'));
 
-    chrome.runtime.sendMessage({ action: 'GET_IMAGE_ATTRS' })
+    chrome.runtime.sendMessage({ action: 'get_image_attributes' })
         .then(interactionAttributes => {
             console.log('interactionAttributes', interactionAttributes);
             images.forEach((image) => {

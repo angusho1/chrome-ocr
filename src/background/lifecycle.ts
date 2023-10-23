@@ -7,10 +7,10 @@ export const setOnPageUnloadListener = async () => {
 const addUnloadListener = () => {
     window.addEventListener('beforeunload', function() {
         chrome.storage.local.clear();
-        chrome.runtime.sendMessage({ action: 'get_state' })
+        chrome.runtime.sendMessage({ action: 'get_app_state' })
             .then(app => {
                 chrome.runtime.sendMessage({
-                    action: 'set_state',
+                    action: 'set_app_state',
                     data: {
                         ...app,
                         scanState: {

@@ -1,4 +1,4 @@
-import { ScanPageResult } from "../../types/script.types";
+import { ScanPageResult } from "../types/script.types";
 
 export const getImageSrcsFromPage = async (tab: chrome.tabs.Tab): Promise<string[]> => {
     const injectionResults = await chrome.scripting.executeScript({

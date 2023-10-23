@@ -1,3 +1,3 @@
 export const KeyboardCommands = {
-    TOGGLE_MODE: 'toggle_mode',
+    ToggleMode: 'toggle_mode',
 }

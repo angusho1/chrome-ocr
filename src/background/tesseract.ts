@@ -1,7 +1,7 @@
 import Tesseract, { createWorker } from "tesseract.js";
-import { CHARACTER_MIN_CONFIDENCE, WORD_MIN_CONFIDENCE } from "../../constants/tesseract.const";
-import { ImageScanResults } from "../../types/script.types";
-import { ExtractTextOptions } from "../../types/tesseract.types";
+import { CHARACTER_MIN_CONFIDENCE, WORD_MIN_CONFIDENCE } from "../constants/tesseract.const";
+import { ImageScanResults } from "../types/script.types";
+import { ExtractTextOptions } from "../types/tesseract.types";
 
 export const extractText = async (imgSrc: string, options?: ExtractTextOptions) => {
     const worker = await createWorker({

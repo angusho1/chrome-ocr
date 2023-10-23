@@ -1,18 +1,19 @@
-import { insertSnippets } from '../page-context/text-display';
-import { getImageSrcsFromPage } from '../page-context/scan-page';
+import { insertSnippets } from '../content/text-display';
+import { getImageSrcsFromPage } from '../content/scan-page';
 import { extractText, parseExtractResult } from './tesseract';
 import { executeScript } from '../utils/execute-script';
-import { ExtractTextOptions } from '../../types/tesseract.types';
+import { ExtractTextOptions } from '../types/tesseract.types';
 import { initImageScanDataHandler } from '../utils/ImageScanDataHandler';
-import { DisplayMode } from '../../types/state.types';
-import { Snippet } from '../../types/script.types';
-import { DEFAULT_APP_STATE } from '../../constants/default-app.const';
+import { DisplayMode } from '../types/state.types';
+import { Snippet } from '../types/script.types';
+import { DEFAULT_APP_STATE } from '../constants/default-app.const';
 
 type ScanImageOptions = {
     displayMode: DisplayMode;
     extractTextOptions?: ExtractTextOptions;
 }
 
+// TODO: This currently is not called from the background
 export const scanImagesAndInsertText = async (options?: ScanImageOptions) => {
     const [tab] = await chrome.tabs.query({ active: true });
 

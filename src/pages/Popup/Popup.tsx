@@ -1,11 +1,11 @@
 import React, { BaseSyntheticEvent, useEffect, useState } from 'react';
 import './Popup.css';
-import { showScanResults } from '../../scripts/page-context/text-display';
+import { showScanResults } from '../../content/text-display';
 import { useAppState } from '../../hooks/app-state.hooks';
 import { DisplayMode } from '../../types/state.types';
-import { scanImagesAndInsertText } from '../../scripts/extension-context/scan-page';
-import { setOnPageUnloadListener } from '../../scripts/extension-context/lifecycle';
-import { executeScript } from '../../scripts/utils/execute-script';
+import { scanImagesAndInsertText } from '../../background/scan-page';
+import { setOnPageUnloadListener } from '../../background/lifecycle';
+import { executeScript } from '../../utils/execute-script';
 import { useExtensionSettings } from '../../hooks/extension-settings.hooks';
 
 const Popup = () => {

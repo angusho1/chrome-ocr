@@ -1,5 +1,5 @@
-import { ChromeStorageKeys } from "../../constants/chrome-storage";
-import { ImageScanResultsStore, ImageScanResultsEntry } from "../../types/script.types";
+import { ChromeStorageKeys } from "../constants/chrome-storage";
+import { ImageScanResultsStore, ImageScanResultsEntry } from "../types/script.types";
 
 class ImageScanDataHandler {
     private _imageScanResultsStore: ImageScanResultsStore;
@@ -11,7 +11,7 @@ class ImageScanDataHandler {
     }
 
     private async getStorageData() {
-        const storageKey = ChromeStorageKeys.IMAGE_DATA_KEY;
+        const storageKey = ChromeStorageKeys.ImageData;
         return (await chrome.storage.local.get([storageKey]))[storageKey];
     }
 
@@ -39,7 +39,7 @@ class ImageScanDataHandler {
     }
 
     public async commit() {
-        await chrome.storage.local.set({ [ChromeStorageKeys.IMAGE_DATA_KEY]: this._imageScanResultsStore });
+        await chrome.storage.local.set({ [ChromeStorageKeys.ImageData]: this._imageScanResultsStore });
     }
 }
 

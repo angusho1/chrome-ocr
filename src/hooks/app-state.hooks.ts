@@ -12,12 +12,12 @@ export const useAppState = (): AppStateResult => {
     const [state, setState] = useState<App | undefined>(undefined);
 
     const setAppState = (state: App) => {
-        chrome.runtime.sendMessage({ action: SetStateActions.SET_STATE, data: state });
+        chrome.runtime.sendMessage({ action: SetStateActions.SetAppState, data: state });
     };
 
     useEffect(() => {
         chrome.runtime.onMessage.addListener(function(message) {
-            if (message.action === PublishMessageActions.PUBLISH_STATE) {
+            if (message.action === PublishMessageActions.PublishAppState) {
                 setState(message.data);
             }
         });
@@ -25,7 +25,7 @@ export const useAppState = (): AppStateResult => {
 
     useEffect(() => {
         if (!state) {
-            chrome.runtime.sendMessage({ action: GetStateActions.GET_STATE })
+            chrome.runtime.sendMessage({ action: GetStateActions.GetAppState })
                 .then(state => setState(state));
         }
     }, [state]);
