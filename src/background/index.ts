@@ -11,7 +11,9 @@ chrome.commands.onCommand.addListener((command) => {
     const app = getAppState();
 
     if (command === KeyboardCommands.ToggleMode) {
+        console.log('app beforehand', app);
         toggleMode();
+        console.log('app after', app);
         sendMessage(PublishMessageActions.PublishAppState, app);
     }
 });

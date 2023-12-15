@@ -25,7 +25,7 @@ export const toggleMode = () => {
 
     if (!app.scanState.scanned) return;
     if (!app.active) {
-        executeScript(Content.showScanResults);
+        displaySnippets();
         app.active = true;
     } else {
         executeScript(Content.removeSnippets);
